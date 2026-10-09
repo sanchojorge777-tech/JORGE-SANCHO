@@ -8,7 +8,7 @@ export const CONFIG = {
   //   'auto'  -> uses the relay server if the site runs on one (server.js), otherwise connects directly.
   //   'relay' -> always use the relay server.
   //   'p2p'   -> always connect directly (no server needed).
-  TRANSPORT: 'relay',
+  TRANSPORT: 'p2p',
 
   // Seconds players have to answer each question (a question can set its own "seconds").
   SECONDS_PER_QUESTION: 30,
