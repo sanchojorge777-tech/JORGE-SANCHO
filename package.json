@@ -1,0 +1,16 @@
+{
+  "name": "boardroom-quiz",
+  "version": "1.0.0",
+  "description": "Live multiplayer quiz: players join with a PIN or QR code from their phones.",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

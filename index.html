@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Boardroom Quiz</title>
+<meta name="description" content="Live decision quiz. Join with a PIN or QR code from your phone.">
+<meta name="theme-color" content="#0A101E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Boardroom Quiz">
+<meta property="og:description" content="Live decision quiz. Join with a PIN or QR code from your phone.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="img/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="player">
+<header class="pbar" id="pbar" hidden><span id="pname" class="pname"></span><span id="pscore" class="pscore"></span></header>
+<div class="banner" id="banner" role="status" hidden></div>
+<main id="view" aria-live="polite"></main>
+<noscript><p class="lead" style="padding:1rem">This app needs JavaScript.</p></noscript>
+<script type="module" src="js/player.js"></script>
+</body>
+</html>
