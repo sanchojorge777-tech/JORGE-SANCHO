@@ -1,13 +1,13 @@
 {
-  "name": "Boardroom Quiz",
-  "short_name": "Quiz",
-  "description": "Live decision quiz. Join with a PIN or QR code.",
+  "name": "CEO Challenge",
+  "short_name": "CEO",
+  "description": "Live strategy decision quiz. Join with a PIN or QR code.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0A101E",
-  "theme_color": "#0A101E",
+  "background_color": "#041E42",
+  "theme_color": "#041E42",
   "icons": [
     { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
     { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

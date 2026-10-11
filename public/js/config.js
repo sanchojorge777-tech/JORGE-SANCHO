@@ -1,8 +1,8 @@
 // Settings you can change. Everything else works as it is.
 export const CONFIG = {
   // Name shown in the app.
-  APP_NAME: 'Boardroom Quiz',
-  TAGLINE: 'Make the call. Move the company.',
+  APP_NAME: 'CEO Challenge',
+  TAGLINE: 'Walmart case · Strategy execution',
 
   // How phones talk to the host screen:
   //   'auto'  -> uses the relay server if the site runs on one (server.js), otherwise connects directly.

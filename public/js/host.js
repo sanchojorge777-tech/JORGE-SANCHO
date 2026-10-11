@@ -69,7 +69,7 @@ function cleanName(raw) {
   return Array.from(s).slice(0, CONFIG.MAX_NAME).join('');
 }
 function uniqueName(base, pid) {
-  const name = base || 'Player';
+  const name = base || 'Executive';
   const taken = (n) => playersList().some((p) => p.pid !== pid && p.name.toLowerCase() === n.toLowerCase());
   let cand = name;
   let k = 2;
@@ -104,7 +104,7 @@ function onHello(pid, d) {
   let p = G.players[pid];
   if (!p) {
     p = G.players[pid] = {
-      pid, name: uniqueName(cleanName(d.name) || 'Player', pid), score: 0,
+      pid, name: uniqueName(cleanName(d.name) || 'Executive', pid), score: 0,
       answers: {}, connected: true, last: null, joined: Date.now(),
     };
     G.order.push(pid);
@@ -279,7 +279,7 @@ function updateTop() {
   topinfo.append(
     el('span', { class: 'ti' }, 'Join at ', el('b', {}, displayUrl(u))),
     el('span', { class: 'ti' }, 'PIN ', el('b', { class: 'ti-pin' }, fmtPin(G.pin))),
-    el('span', { class: 'ti' }, el('b', {}, String(G.order.length)), G.order.length === 1 ? ' player' : ' players'),
+    el('span', { class: 'ti' }, el('b', {}, String(G.order.length)), G.order.length === 1 ? ' executive' : ' executives'),
   );
 }
 
@@ -337,7 +337,7 @@ function optionTile(k, text, extra = {}) {
   return el('div', { class: 'opt c' + k + (extra.cls ? ' ' + extra.cls : '') },
     el('span', { class: 'letter' }, LETTERS[k]),
     el('span', { class: 'otext' }, text),
-    extra.count != null ? el('span', { class: 'ocount', title: 'Players who chose this' }, String(extra.count)) : null,
+    extra.count != null ? el('span', { class: 'ocount', title: 'Executives who chose this' }, String(extra.count)) : null,
     extra.cls && extra.cls.includes('good') ? el('span', { class: 'mark', 'aria-label': 'Correct answer' }, '✓') : null);
 }
 
@@ -350,7 +350,7 @@ const views = {
     const seen = new Set();
     const qr = el('div', { class: 'qr' });
     qr.innerHTML = qrSvg(url);
-    const start = btn('Start game', 'primary big', () => next());
+    const start = btn('Start session', 'primary big', () => next());
     const copy = btn('Copy join link', 'ghost', (e) => copyLink(url, e.currentTarget));
     function update() {
       const list = playersList();
@@ -362,18 +362,20 @@ const views = {
         seen.add(p.pid);
         return el('span', { class: 'chip' + (p.connected ? '' : ' off') + (fresh ? ' new' : '') },
           el('span', { class: 'chip-name' }, p.name),
-          el('button', { class: 'chip-x', type: 'button', title: 'Remove player', 'aria-label': 'Remove ' + p.name, onclick: () => kick(p.pid) }, '×'));
+          el('button', { class: 'chip-x', type: 'button', title: 'Remove from session', 'aria-label': 'Remove ' + p.name, onclick: () => kick(p.pid) }, '×'));
       }));
-      if (!list.length) chips.append(el('p', { class: 'empty' }, 'Waiting for players…'));
+      if (!list.length) chips.append(el('p', { class: 'empty' }, 'Waiting for executives to join…'));
     }
     const node = el('section', { class: 'lobby' },
       el('div', { class: 'lobby-join' },
+        el('p', { class: 'eyebrow' }, 'Walmart case · Strategy execution'),
+        el('h1', { class: 'case-title' }, 'You are the CEO. Every decision counts.'),
         el('p', { class: 'eyebrow' }, 'Join at'),
         el('p', { class: 'join-url' }, displayUrl(u)),
-        el('p', { class: 'eyebrow' }, 'Game PIN'),
-        el('p', { class: 'pin', 'aria-label': 'Game PIN ' + G.pin.split('').join(' ') }, fmtPin(G.pin))),
+        el('p', { class: 'eyebrow' }, 'Session PIN'),
+        el('p', { class: 'pin', 'aria-label': 'Session PIN ' + G.pin.split('').join(' ') }, fmtPin(G.pin))),
       el('div', { class: 'lobby-qr' }, qr, el('p', { class: 'hint' }, 'Or scan with your phone camera')),
-      el('div', { class: 'lobby-roster' }, el('h2', {}, 'Players ', count), chips));
+      el('div', { class: 'lobby-roster' }, el('h2', {}, 'Executives in the room ', count), chips));
     update();
     return { node, controls: [start, copy], update };
   },
@@ -385,7 +387,7 @@ const views = {
       el('p', { class: 'eyebrow' }, 'Decision ' + (G.i + 1) + ' of ' + N),
       el('h1', { class: 'ready-topic' }, Q.topic),
       num,
-      el('p', { class: 'hint' }, 'Get ready…'));
+      el('p', { class: 'hint' }, 'Prepare your decision…'));
     return {
       node, controls: [btn('Skip countdown', 'ghost', () => toQuestion())],
       tick(now) { num.textContent = String(Math.max(1, Math.ceil((G.readyUntil - now) / 1000))); },
@@ -399,7 +401,7 @@ const views = {
     const answered = el('div', { class: 'answered' });
     const tiles = G.perm.map((orig, k) => optionTile(k, Q.options[orig]));
     function update() {
-      answered.replaceChildren(el('b', {}, String(answeredCount())), ' of ' + connectedList().length + ' answered');
+      answered.replaceChildren(el('b', {}, String(answeredCount())), ' of ' + connectedList().length + ' executives have decided');
     }
     const node = el('section', { class: 'question' },
       el('div', { class: 'q-head' },
@@ -412,7 +414,7 @@ const views = {
     r.set(Math.max(0, G.endsAt - Date.now()));
     return {
       node,
-      controls: [btn('Reveal answer', 'primary big', () => toReveal()), confirmBtn('End game', () => toFinal())],
+      controls: [btn('Reveal best decision', 'primary big', () => toReveal()), confirmBtn('End session', () => toFinal())],
       update,
       tick(now) { r.set(Math.max(0, G.endsAt - now)); },
     };
@@ -439,14 +441,14 @@ const views = {
         el('p', { class: 'eyebrow' }, 'Decision ' + (G.i + 1) + ' of ' + N + ' · ' + Q.topic),
         el('h2', { class: 'q-text small' }, Q.scenario),
         el('div', { class: 'opts' }, tiles),
-        el('div', { class: 'why' }, el('b', {}, 'Why: '), Q.why)),
+        el('div', { class: 'why' }, el('b', {}, 'Rationale: '), Q.why)),
       el('aside', { class: 'reveal-side' },
-        el('h2', {}, 'Leaderboard'),
+        el('h2', {}, 'Executive ranking'),
         board,
         list.length > top.length ? el('p', { class: 'hint' }, '+ ' + (list.length - top.length) + ' more') : null));
     return {
       node,
-      controls: [btn(last ? 'Show final results' : 'Next decision', 'primary big', () => next()), confirmBtn('End game', () => toFinal())],
+      controls: [btn(last ? 'Show board verdict' : 'Next decision', 'primary big', () => next()), confirmBtn('End session', () => toFinal())],
     };
   },
 
@@ -461,14 +463,14 @@ const views = {
     });
     const rest = list.slice(3, 10);
     const node = el('section', { class: 'final' },
-      el('p', { class: 'eyebrow' }, 'Final results'),
-      el('h1', { class: 'final-title' }, list[0] ? list[0].name + ' leads the company to the top' : 'Final results'),
+      el('p', { class: 'eyebrow' }, 'The board’s verdict'),
+      el('h1', { class: 'final-title' }, list[0] ? list[0].name + ' is named CEO of the year' : 'Final results'),
       el('div', { class: 'final-body' + (rest.length ? ' two' : '') },
         el('div', { class: 'podium' }, podium),
         rest.length ? el('ol', { class: 'board wide', start: '4' }, rest.map((p) => el('li', {},
           el('span', { class: 'rk' }, String(rank[p.pid])), el('span', { class: 'nm' }, p.name), el('span', { class: 'gain none' }, ''), el('span', { class: 'sc' }, String(p.score))))) : null));
     if (list.length) setTimeout(() => confetti(), 300);
-    return { node, controls: [btn('Play again', 'primary big', () => playAgain()), confirmBtn('New game (new PIN)', () => newGame())] };
+    return { node, controls: [btn('Play again', 'primary big', () => playAgain()), confirmBtn('New session (new PIN)', () => newGame())] };
   },
 };
 
@@ -498,7 +500,7 @@ function showMessage(title, body, buttons = [], cls = '') {
 /* ------------------------------------------------------------------ start / resume */
 
 async function connect(pin, key) {
-  showMessage('Opening the room…', 'Connecting to the game service.', [], 'busy');
+  showMessage('Opening the boardroom…', 'Connecting to the session service.', [], 'busy');
   link = await openHost({ mode, pin, key, onMessage, onLeft, onStatus, onAttached });
   return link;
 }
@@ -533,9 +535,9 @@ async function resume(snap) {
 function showError(e, retry) {
   const code = e && e.message;
   const text = code === 'pin-in-use'
-    ? 'That game id is still in use. Wait a few seconds and try again.'
+    ? 'That session code is still in use. Wait a few seconds and try again.'
     : 'Could not connect. Check your internet connection and try again.';
-  showMessage('Could not open the room', text, [
+  showMessage('Could not open the boardroom', text, [
     btn('Try again', 'primary big', () => (retry ? retry() : startNew())),
   ], 'error');
 }
@@ -558,9 +560,9 @@ async function boot() {
   if (!usable) return startNew();
   const n = snap.order.length;
   const where = snap.phase === 'lobby' ? 'in the lobby' : 'at decision ' + (snap.i + 1) + ' of ' + N;
-  showMessage('A game is in progress',
-    'PIN ' + fmtPin(snap.pin) + ' · ' + n + (n === 1 ? ' player' : ' players') + ' · ' + where + '.',
-    [btn('Resume game', 'primary big', () => resume(snap)), btn('Start a new game', 'ghost', () => startNew())]);
+  showMessage('A session is in progress',
+    'PIN ' + fmtPin(snap.pin) + ' · ' + n + (n === 1 ? ' executive' : ' executives') + ' · ' + where + '.',
+    [btn('Resume session', 'primary big', () => resume(snap)), btn('Start a new session', 'ghost', () => startNew())]);
 }
 
 /* ------------------------------------------------------------------ page chrome */

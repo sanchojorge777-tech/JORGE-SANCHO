@@ -63,11 +63,11 @@ function showJoin(pinValue, message) {
   updateBar(); setBanner('');
   const pin = el('input', {
     id: 'pin', class: 'input pin-input', type: 'text', inputmode: 'numeric',
-    autocomplete: 'off', maxlength: '7', placeholder: 'Game PIN', 'aria-label': 'Game PIN',
+    autocomplete: 'off', maxlength: '7', placeholder: 'Session PIN', 'aria-label': 'Session PIN',
   });
   const name = el('input', {
     id: 'nick', class: 'input', type: 'text', maxlength: String(CONFIG.MAX_NAME), autocomplete: 'off',
-    enterkeyhint: 'go', placeholder: 'Your nickname', 'aria-label': 'Your nickname',
+    enterkeyhint: 'go', placeholder: 'Your name', 'aria-label': 'Your name',
   });
   pin.value = pinValue ? fmtPin(pinValue) : '';
   name.value = store.get('bq.name') || '';
@@ -81,11 +81,11 @@ function showJoin(pinValue, message) {
     const digits = pin.value.replace(/\D/g, '');
     const nick = name.value.replace(/\s+/g, ' ').trim();
     if (digits.length !== 6) { err.textContent = 'Enter the 6-digit PIN shown on the big screen.'; pin.focus(); return; }
-    if (!nick) { err.textContent = 'Choose a nickname.'; name.focus(); return; }
+    if (!nick) { err.textContent = 'Enter your name.'; name.focus(); return; }
     store.set('bq.name', nick);
     startJoin(digits, nick, false);
   } },
-  pin, name, el('button', { class: 'btn primary big block', type: 'submit' }, 'Join game'), err);
+  pin, name, el('button', { class: 'btn primary big block', type: 'submit' }, 'Join session'), err);
   show(el('div', { class: 'join' },
     el('img', { class: 'join-logo', src: 'img/logo.svg', alt: '', width: '72', height: '72' }),
     el('h1', { class: 'join-title' }, CONFIG.APP_NAME),
@@ -156,9 +156,9 @@ function lost() {
 function failed(code) {
   closeLink();
   if (code === 'kicked') return kicked();
-  if (code === 'full') return endSession('This game is full.');
+  if (code === 'full') return endSession('This session is full.');
   if (!joined) {
-    if (code === 'nogame') return endSession(auto ? '' : 'We couldn’t find a game with that PIN. Check the number on the big screen.');
+    if (code === 'nogame') return endSession(auto ? '' : 'We couldn’t find a session with that PIN. Check the number on the big screen.');
     attempts += 1;
     if (attempts >= 3) return endSession('Couldn’t connect. Check your internet connection and try again.');
   } else {
@@ -184,9 +184,9 @@ function kicked() {
   closeLink();
   store.del(SESSION_KEY);
   joined = false; S = null; updateBar(); setBanner('');
-  show(el('div', { class: 'center' }, el('h1', {}, 'Removed from the game'),
-    el('p', { class: 'lead' }, 'The host removed you from this game.'),
-    el('button', { class: 'btn primary big', type: 'button', onclick: () => showJoin('', '') }, 'Join another game')));
+  show(el('div', { class: 'center' }, el('h1', {}, 'Removed from the session'),
+    el('p', { class: 'lead' }, 'The host removed you from this session.'),
+    el('button', { class: 'btn primary big', type: 'button', onclick: () => showJoin('', '') }, 'Join another session')));
 }
 
 function leave() {
@@ -258,8 +258,8 @@ function leaveButton() {
   const b = el('button', { class: 'link-btn', type: 'button', onclick: () => {
     if (b.dataset.armed) return leave();
     b.dataset.armed = '1'; b.textContent = 'Tap again to leave';
-    setTimeout(() => { delete b.dataset.armed; b.textContent = 'Leave game'; }, 3000);
-  } }, 'Leave game');
+    setTimeout(() => { delete b.dataset.armed; b.textContent = 'Leave session'; }, 3000);
+  } }, 'Leave session');
   return b;
 }
 
@@ -276,10 +276,10 @@ function render() {
 function screenLobby() {
   show(el('div', { class: 'center' },
     el('div', { class: 'pulse', 'aria-hidden': 'true' }),
-    el('h1', {}, 'You’re in!'),
-    el('p', { class: 'lead' }, 'See your nickname on the big screen.'),
+    el('h1', {}, 'You’re on the board.'),
+    el('p', { class: 'lead' }, 'Your name is now on the big screen.'),
     el('div', { class: 'name-badge' }, S.name),
-    el('p', { class: 'hint' }, (S.n || 1) + (S.n === 1 ? ' player' : ' players') + ' in the room'),
+    el('p', { class: 'hint' }, (S.n || 1) + (S.n === 1 ? ' executive' : ' executives') + ' in the room'),
     leaveButton()));
 }
 
@@ -289,7 +289,7 @@ function screenReady() {
     el('p', { class: 'eyebrow' }, 'Decision ' + (S.i + 1) + ' of ' + S.of),
     el('h1', {}, S.topic),
     num,
-    el('p', { class: 'hint' }, 'Get ready…')));
+    el('p', { class: 'hint' }, 'Prepare your decision…')));
   loop(() => {
     const left = endLocal - performance.now();
     num.textContent = String(Math.max(1, Math.ceil(left / 1000)));
@@ -331,7 +331,7 @@ function screenQuestion() {
 
 function screenReveal() {
   const cls = S.mine == null ? 'none' : S.ok ? 'ok' : 'bad';
-  const title = S.mine == null ? 'No answer' : S.ok ? 'Right call!' : 'Not quite';
+  const title = S.mine == null ? 'No decision made' : S.ok ? 'Sound decision' : 'Poor decision';
   const confirmText = S.opts[S.correct];
   show(el('div', { class: 'r' },
     el('p', { class: 'eyebrow' }, 'Decision ' + (S.i + 1) + ' of ' + S.of + ' · ' + S.topic),
@@ -354,10 +354,10 @@ function screenFinal() {
   show(el('div', { class: 'f' },
     el('p', { class: 'eyebrow' }, 'Final standing'),
     el('div', { class: 'rank-big' }, ordinal(S.rank)),
-    el('p', { class: 'lead' }, 'of ' + S.n + ' players · ' + (S.score || 0).toLocaleString('en-US') + ' pts'),
+    el('p', { class: 'lead' }, 'of ' + S.n + ' executives · ' + (S.score || 0).toLocaleString('en-US') + ' pts'),
     el('ol', { class: 'board' }, top),
-    el('p', { class: 'hint' }, 'Thanks for playing.'),
-    el('button', { class: 'btn ghost block', type: 'button', onclick: () => leave() }, 'Leave game')));
+    el('p', { class: 'hint' }, 'Thanks for taking part.'),
+    el('button', { class: 'btn ghost block', type: 'button', onclick: () => leave() }, 'Leave session')));
 }
 
 /* ------------------------------------------------------------------ boot */
